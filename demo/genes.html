@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GENESIS — Animated Gene Learning</title>
+    <style>
+      :root { --bg:#ffffff; --panel:#f8fafc; --border:#e5e7eb; --text:#0f172a; --muted:#475569; --exon:#22c55e; --intron:#cbd5e1; --promoter:#fde68a; --scanner:#0ea5e9; --tf:#a78bfa; }
+      html, body { background: var(--bg); color: var(--text); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; }
+      header, main, footer { max-width: 1100px; margin: 24px auto; padding: 0 16px; }
+      .panel { background: var(--panel); border:1px solid var(--border); border-radius: 12px; padding: 16px 18px; margin: 16px 0; }
+      h1, h2 { margin: 0 0 10px 0; }
+      a { color:#0ea5e9; text-decoration:none; } a:hover { text-decoration:underline; }
+      .controls { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:10px; }
+      .controls button, .controls select, .controls input[type="range"] { padding:8px 10px; border-radius:8px; border:1px solid var(--border); background:#fff; color:var(--text); }
+      .track-wrap { position: relative; }
+      .track { position: relative; height: 44px; border:1px solid var(--border); border-radius: 8px; overflow: hidden; background: #fff; }
+      .segment { position: absolute; top:0; height:100%; }
+      .exon { background: var(--exon); }
+      .intron { background: var(--intron); }
+      .promoter { background: var(--promoter); }
+      .scanner { position:absolute; top:-4px; width:4px; height:52px; background: var(--scanner); border-radius: 3px; }
+      .tf { position:absolute; top:8px; height:28px; background: var(--tf); opacity: 0.6; border-radius: 6px; }
+      .legend { display:flex; gap:16px; color: var(--muted); font-size: 0.95em; margin-top: 8px; flex-wrap: wrap;}
+      .legend span { display:inline-flex; align-items:center; gap:6px; }
+      .box { width:14px; height:14px; display:inline-block; border-radius:3px; }
+      .hint { color: var(--muted); font-size: 0.95em; }
+      .tooltip { position:absolute; background:#111827; color:#fff; padding:6px 8px; border-radius:6px; font-size:12px; transform: translate(-50%, -110%); display:none; white-space: nowrap; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>GENESIS — Animated Gene Learning</h1>
+      <nav class="hint">
+        <a href="./index.html">Demo</a> • <a href="./learning.html">Learning & Background</a>
+      </nav>
+    </header>
+    <main>
+      <section class="panel">
+        <h2>Gene Structure and Regulatory Context</h2>
+        <p class="hint">Toggle elements and play the scanner to visualize coding (exons) vs. non‑coding (introns, promoter) regions and transcription factor (TF) motifs.</p>
+        <div class="controls">
+          <button id="playPause">Play</button>
+          <label>Speed <input id="speed" type="range" min="0.5" max="3" step="0.1" value="1.5"></label>
+          <label><input id="toggleExons" type="checkbox" checked> Exons</label>
+          <label><input id="toggleIntrons" type="checkbox" checked> Introns</label>
+          <label><input id="togglePromoter" type="checkbox" checked> Promoter</label>
+          <label><input id="toggleTF" type="checkbox" checked> TF Motifs</label>
+        </div>
+
+        <div class="track-wrap">
+          <div id="track" class="track" aria-label="gene track">
+            <!-- Promoter region (upstream) -->
+            <div class="segment promoter" style="left:0%; width:12%;"></div>
+            <!-- Introns and exons (percent widths sum to 100) -->
+            <div class="segment intron" style="left:12%; width:18%;"></div>
+            <div class="segment exon"   style="left:30%; width:8%;"></div>
+            <div class="segment intron" style="left:38%; width:22%;"></div>
+            <div class="segment exon"   style="left:60%; width:7%;"></div>
+            <div class="segment intron" style="left:67%; width:18%;"></div>
+            <div class="segment exon"   style="left:85%; width:10%;"></div>
+            <!-- TF motif examples over promoter/exons -->
+            <div class="tf" data-tip="TF motif" style="left:6%; width:4%;"></div>
+            <div class="tf" data-tip="TF motif" style="left:33%; width:3%;"></div>
+            <div class="tf" data-tip="TF motif" style="left:87%; width:3%;"></div>
+            <!-- Scanner -->
+            <div id="scanner" class="scanner"></div>
+          </div>
+          <div id="tooltip" class="tooltip"></div>
+        </div>
+
+        <div class="legend">
+          <span><i class="box" style="background:#22c55e;"></i> Exon (coding)</span>
+          <span><i class="box" style="background:#cbd5e1;"></i> Intron (non‑coding)</span>
+          <span><i class="box" style="background:#fde68a;"></i> Promoter (non‑coding)</span>
+          <span><i class="box" style="background:#0ea5e9;"></i> Scanner</span>
+          <span><i class="box" style="background:#a78bfa;"></i> TF Motif</span>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Interpretation</h2>
+        <p>Exons contain coding sequence that can be translated; introns are removed during splicing. Promoters and TF motifs are non‑coding but regulate transcription and can alter gene expression when mutated. GENESIS focuses on promoter‑localized variants distinguishing specific loci (CHEK2, TBX1, COMT) from other promoter variants.</p>
+      </section>
+    </main>
+    <footer>
+      <small class="hint">GENESIS — Research demonstration. Not for clinical use.</small>
+    </footer>
+
+    <script>
+      const scanner = document.getElementById('scanner');
+      const playBtn = document.getElementById('playPause');
+      const speed = document.getElementById('speed');
+      const tooltip = document.getElementById('tooltip');
+
+      const toggles = {
+        exons: document.getElementById('toggleExons'),
+        introns: document.getElementById('toggleIntrons'),
+        promoter: document.getElementById('togglePromoter'),
+        tf: document.getElementById('toggleTF'),
+      };
+
+      let playing = false;
+      let x = 0; // 0..100% position
+      let last = null;
+      let speedFactor = parseFloat(speed.value); // px per frame basis, scaled
+
+      function setVisibility() {
+        document.querySelectorAll('.exon').forEach(el => el.style.display = toggles.exons.checked ? '' : 'none');
+        document.querySelectorAll('.intron').forEach(el => el.style.display = toggles.introns.checked ? '' : 'none');
+        document.querySelectorAll('.promoter').forEach(el => el.style.display = toggles.promoter.checked ? '' : 'none');
+        document.querySelectorAll('.tf').forEach(el => el.style.display = toggles.tf.checked ? '' : 'none');
+      }
+      setVisibility();
+
+      Object.values(toggles).forEach(t => t.addEventListener('change', setVisibility));
+
+      speed.addEventListener('input', () => { speedFactor = parseFloat(speed.value); });
+
+      playBtn.addEventListener('click', () => {
+        playing = !playing;
+        playBtn.textContent = playing ? 'Pause' : 'Play';
+        if (playing) {
+          last = performance.now();
+          requestAnimationFrame(tick);
+        }
+      });
+
+      function tick(ts) {
+        if (!playing) return;
+        const dt = Math.min(50, ts - (last || ts));
+        last = ts;
+        x = (x + (dt * 0.02 * speedFactor)) % 100; // wrap at 100%
+        scanner.style.left = x + '%';
+        requestAnimationFrame(tick);
+      }
+
+      // Simple tooltip on TF blocks
+      const track = document.getElementById('track');
+      track.addEventListener('mousemove', (e) => {
+        const t = e.target;
+        if (t.classList.contains('tf')) {
+          tooltip.textContent = t.dataset.tip || 'TF motif';
+          tooltip.style.left = e.pageX + 'px';
+          tooltip.style.top = (e.pageY - 10) + 'px';
+          tooltip.style.display = 'block';
+        } else {
+          tooltip.style.display = 'none';
+        }
+      });
+      track.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GENESIS — Learning & Background</title>
+    <style>
+      :root { --bg:#ffffff; --panel:#f8fafc; --border:#e5e7eb; --text:#0f172a; --muted:#475569; --accent:#0ea5e9; }
+      html, body { background:var(--bg); color:var(--text); font-family:ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; }
+      header, main, footer { max-width: 1100px; margin: 24px auto; padding: 0 16px; }
+      .panel { background: var(--panel); border:1px solid var(--border); border-radius: 12px; padding: 16px 18px; margin: 16px 0; }
+      a { color: var(--accent); text-decoration: none; } a:hover { text-decoration: underline; }
+      h1, h2 { margin: 0 0 8px 0; }
+      ul { margin: 8px 0 0 18px; }
+      .note { color: var(--muted); font-size: 0.95em; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>GENESIS — Learning & Background</h1>
+      <nav class="note">
+        <a href="./index.html">Demo</a> • <a href="./genes.html">Animated Gene Learning</a>
+      </nav>
+    </header>
+    <main>
+      <section class="panel">
+        <h2>Genes and Transcription</h2>
+        <p>A gene is a genomic locus transcribed into RNA. Protein‑coding genes contain exons that are translated into proteins; non‑coding genes produce functional RNAs.</p>
+      </section>
+      <section class="panel">
+        <h2>Coding vs Non‑coding Genome</h2>
+        <ul>
+          <li>Coding regions (exons) comprise ~1–2% of the human genome.</li>
+          <li>Non‑coding regions (>98%) include promoters, enhancers, silencers, insulators, and other regulatory elements controlling gene expression.</li>
+        </ul>
+      </section>
+      <section class="panel">
+        <h2>Regulatory Elements</h2>
+        <p>Promoters sit near transcription start sites and recruit transcription machinery. Variants can alter transcription factor binding motifs, changing expression.</p>
+      </section>
+      <section class="panel">
+        <h2>GENESIS Objective</h2>
+        <p>Given a 200bp sequence centered on a variant, GENESIS classifies whether it belongs to CHEK2, TBX1, COMT loci or to other promoter variants using a 1D CNN trained on GRCh38 chr22.</p>
+      </section>
+      <section class="panel">
+        <h2>Further Reading</h2>
+        <ul>
+          <li><a href="../reports/report.pdf" target="_blank" rel="noopener">Project Report (PDF)</a></li>
+          <li><a href="https://github.com/vanshcodeworks/GENESIS" target="_blank" rel="noopener">GitHub Repository</a></li>
+          <li><a href="https://drive.google.com/your-link-here" target="_blank" rel="noopener">External Report Link (TBD)</a></li>
+        </ul>
+      </section>
+    </main>
+    <footer>
+      <small class="note">GENESIS — Research demonstration. Not for clinical use.</small>
+    </footer>
+  </body>
+</html>

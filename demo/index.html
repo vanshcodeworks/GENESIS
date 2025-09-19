@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GENESIS Demo – Non‑coding Variant Classifier</title>
+    <!-- Minimal professional light theme overrides -->
+    <style>
+      :root {
+        --bg: #ffffff;
+        --panel: #f8fafc;
+        --border: #e5e7eb;
+        --text: #0f172a;
+        --muted: #475569;
+        --accent: #0ea5e9;
+        --ok: #16a34a;
+        --warn: #d97706;
+        --err: #dc2626;
+      }
+      html, body { background: var(--bg); color: var(--text); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; }
+      header { max-width: 1100px; margin: 24px auto 0; padding: 0 16px; }
+      header h1 { margin: 0 0 6px 0; font-weight: 600; }
+      header p { margin: 0; color: var(--muted); }
+      main { max-width: 1100px; margin: 24px auto; padding: 0 16px; }
+      .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; margin: 16px 0; }
+      h2 { margin: 0 0 12px 0; font-weight: 600; }
+      .chr-track { transform-origin: left center; transition: transform .2s ease; border: 1px dashed var(--border); padding: 10px; border-radius: 8px; background: #fff; }
+      .gene-region { display: inline-block; margin: 0 10px; padding: 6px 10px; background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 6px; cursor: pointer; }
+      .gene-label { color: #3730a3; font-weight: 600; }
+      .buttons button, .zoom-controls button, .variant button, .predict-btn { background: #111827; color: #fff; border: 1px solid #111827; border-radius: 8px; padding: 8px 12px; cursor: pointer; }
+      .buttons button:hover, .zoom-controls button:hover, .variant button:hover, .predict-btn:hover { background: #0f172a; }
+      textarea { width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 10px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+      .sequence-stats span { margin-right: 12px; color: var(--muted); }
+      #status { margin-bottom: 8px; color: var(--muted); }
+      .result .prob { border: 1px solid var(--border); border-radius: 8px; padding: 10px; margin: 8px 0; background: #fff; }
+      .result .prob.high { border-color: var(--ok); }
+      footer { max-width: 1100px; margin: 24px auto 32px; padding: 0 16px; color: var(--muted); }
+      .resources a { color: var(--accent); text-decoration: none; }
+      .resources a:hover { text-decoration: underline; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>GENESIS Demo</h1>
+      <p>Interactive exploration of 200bp DNA sequences with a trained classifier for CHEK2, TBX1, COMT, and Other.</p>
+      <!-- New nav -->
+      <nav style="margin-top:8px;">
+        <a href="./index.html">Demo</a> |
+        <a href="./learning.html">Learning & Background</a> |
+        <a href="./genes.html">Animated Gene Learning</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="panel">
+        <h2>Chromosome 22 Loci</h2>
+        <div class="gene-viewer">
+          <div class="chromosome">
+            <div class="chr-label" style="color: var(--muted); margin-bottom: 6px;">Chromosome 22</div>
+            <div class="chr-track">
+              <div class="gene-region" id="chek2-region" data-gene="CHEK2">
+                <span class="gene-label">CHEK2</span>
+              </div>
+              <div class="gene-region" id="tbx1-region" data-gene="TBX1">
+                <span class="gene-label">TBX1</span>
+              </div>
+              <div class="gene-region" id="comt-region" data-gene="COMT">
+                <span class="gene-label">COMT</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Example Sequences</h2>
+        <div class="examples" style="margin-bottom: 10px;">
+          <button class="example-btn" data-type="CHEK2">CHEK2</button>
+          <button class="example-btn" data-type="TBX1">TBX1</button>
+          <button class="example-btn" data-type="COMT">COMT</button>
+          <button class="example-btn" data-type="Other">Random Other</button>
+        </div>
+        <div class="prediction-hint" style="color: var(--muted); font-size: 0.95em;">
+          Expected predictions reflect the model’s training distribution and class weighting.
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Sequence Editor</h2>
+        <div class="controls">
+          <textarea id="seq" rows="6" spellcheck="false" placeholder="Enter a 200bp DNA sequence (A, C, G, T only)..."></textarea>
+          <div class="buttons" style="margin-top:10px;">
+            <button id="fillRandom">Random 200bp</button>
+            <button id="clean">Clean sequence</button>
+            <button id="copySeq">Copy</button>
+            <button id="predict" class="predict-btn">Predict</button>
+          </div>
+        </div>
+        <div class="sequence-stats" style="margin-top:10px;">
+          <span id="seqLength">Length: 0</span>
+          <span id="seqComposition">A:0% C:0% G:0% T:0%</span>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Variant Editor</h2>
+        <div class="variant" style="margin-bottom:10px;">
+          <label>Position (1–200): <input id="pos" type="number" min="1" max="200" value="100" /></label>
+          <label style="margin-left:10px;">Base:
+            <select id="base">
+              <option>A</option>
+              <option>C</option>
+              <option>G</option>
+              <option>T</option>
+            </select>
+          </label>
+          <button id="applyVar" style="margin-left:10px;">Apply Variant</button>
+        </div>
+        <pre id="seqView" style="white-space: pre-wrap;"></pre>
+      </section>
+
+      <section class="panel">
+        <h2>Prediction <small id="apiInfo" style="margin-left:8px;color:#667085;"></small></h2>
+        <div id="status">Idle</div>
+        <div id="spinner" style="display:none;margin:6px 0;">Analyzing…</div>
+        <div class="confidence" style="margin:8px 0;max-width:360px;">
+          <div style="height:8px;background:#e5e7eb;border-radius:4px;overflow:hidden;">
+            <div id="confidenceBar" style="height:8px;width:0;background:#16a34a;"></div>
+          </div>
+          <div id="confidenceText" style="font-size:12px;color:#667085;margin-top:4px;">0% confidence</div>
+        </div>
+        <div id="result" class="result"></div>
+      </section>
+
+      <section class="panel resources">
+        <h2>Resources</h2>
+        <ul>
+          <li><a href="https://github.com/vanshcodeworks/GENESIS" target="_blank" rel="noopener">GitHub Repository</a></li>
+          <li><a href="../reports/report.pdf" target="_blank" rel="noopener">Project Report (PDF)</a></li>
+          <li><a href="https://drive.google.com/your-link-here" target="_blank" rel="noopener">External Report Link (TBD)</a></li>
+          <li><a href="./learning.html">Learning & Background</a></li>
+          <li><a href="./genes.html">Animated Gene Learning</a></li>
+        </ul>
+      </section>
+    </main>
+
+    <footer>
+      <small>GENESIS — Research demonstration. Not for clinical use.</small>
+    </footer>
+
+    <script>
+      window.API_BASE = 'http://localhost:8000';
+    </script>
+    <script src="app.js"></script>
+  </body>
+</html>

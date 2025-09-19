@@ -1,0 +1,12 @@
+numpy
+pandas
+pyranges
+pyfaidx
+torch
+scikit-learn
+tqdm
+matplotlib
+seaborn
+fastapi
+uvicorn
+pydantic

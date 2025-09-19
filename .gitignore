@@ -1,0 +1,59 @@
+# filepath: e:\DNA-SEQ(CH22)\.gitignore
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.env
+.venv/
+venv/
+*/genomics_env/
+.ipynb_checkpoints/
+genomics_env/*
+
+# Local virtual environments (ignore whole folders anywhere)
+genomics_env/
+**/genomics_env/
+.venv/
+**/.venv/
+venv/
+**/venv/
+
+# VSCode / IDE
+.vscode/
+.idea/
+*.code-workspace
+
+# Data & Outputs (large / generated)
+processed_sequences.npy
+processed_labels.npy
+
+models/*.pth
+models/*.pt
+models/metrics.json
+models/classification_report.txt
+reports/figures/*
+reports/*.pdf
+data/*.fa
+data/*.fai
+data/*.fa.gz
+data/*.fa.gz.fai
+data/*.gvf
+data/*.gff*
+data/*.npy
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Demo build artifacts (keep source)
+# demo/dist/
+
+# Legacy ignores removed (keep these files tracked)
+# demo/
+# plot_gene_tracks.py
+# plot_metrics.py
