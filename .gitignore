@@ -29,11 +29,6 @@ venv/
 processed_sequences.npy
 processed_labels.npy
 
-models/*.pth
-models/*.pt
-models/metrics.json
-models/classification_report.txt
-reports/figures/*
 reports/*.pdf
 data/*.fa
 data/*.fai
