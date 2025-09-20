@@ -26,6 +26,9 @@ This project is intended for research and education. It provides a concise path 
 ## Results (high level)
 - Accuracy ~99.99%; macro F1 = 1.00 on the test set.
 - See models/classification_report.txt and reports/figures/confusion_matrix.png.
+- ROC/PR curves (OvR, micro) are generated to assess imbalanced performance:
+  - reports/figures/roc_ovr.png
+  - reports/figures/pr_ovr.png
 
 ## Repository structure
 - src/
@@ -66,7 +69,7 @@ Place Ensembl data in data/:
   ```
 - Plot results:
   ```bash
-  python scripts/03_plot_metrics.py
+  python scripts/03_plot_metrics.py 
   python scripts/04_plot_gene_tracks.py
   ```
 - Predict from CLI:
@@ -109,3 +112,9 @@ If you use this work, please cite:
 
 ## License
 MIT License. See LICENSE.
+
+## Analysis utilities
+- Saliency maps (gradient-based) to highlight learned sequence motifs:
+  ```bash
+  python scripts/06_saliency.py       # saves reports/figures/saliency_*.png
+  ```

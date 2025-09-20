@@ -266,6 +266,11 @@ def main():
         print(cm)
         metrics_out["confusion_matrix"] = cm.tolist()
         metrics_out["target_names"] = target_names
+
+        # Save test probabilities and labels for downstream ROC/PR plotting
+        os.makedirs('models', exist_ok=True)
+        np.save(os.path.join('models', 'test_probs.npy'), np.array(all_probs))  # shape: (N_test, num_classes)
+        np.save(os.path.join('models', 'test_labels.npy'), np.array(y_test, dtype=np.int64))
     else:
         report_text = classification_report(y_test, all_preds, target_names=['Outside CHEK2', 'Inside CHEK2'], zero_division=0)
         print(report_text)
