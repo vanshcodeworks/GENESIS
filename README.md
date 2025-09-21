@@ -102,7 +102,7 @@ docker run --rm -p 8000:8000 -e APP_MODULE=src.app:app -v %cd%/models:/app/model
 ## Resources
 - GitHub: https://github.com/vanshcodeworks/GENESIS
 - Report (PDF): reports/report.pdf
-- External link: https://drive.google.com/your-link-here
+- External link: [https://drive.google.com/your-link-here](https://drive.google.com/file/d/1r-lbHw51rPoIBH75NdfCtVGgI3gKKhRg/view?usp=sharing)
 - Learning & Background (web): demo/learning.html
 - Animated Gene Learning (web): demo/genes.html
 
